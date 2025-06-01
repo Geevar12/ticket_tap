@@ -1,0 +1,41 @@
+.home .section {
+  background: #fff;
+  margin: 0;
+  position: relative;
+  border-radius: 18px;
+  box-shadow: 0 4px 24px rgba(44,62,80,0.08);
+  margin-bottom: 32px;
+}
+
+.home .section:nth-child(even) {
+  background: #f5f6fa;
+}
+
+.home .section-title {
+  color: #f84464;
+  margin-bottom: 50px;
+}
+
+.home .carousel {
+  padding: 30px 0 50px;
+}
+
+.home .section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #ececec, transparent);
+}
+
+@media (max-width: 768px) {
+  .home .section {
+    padding: 40px 0;
+    margin-bottom: 18px;
+  }
+  .home .carousel {
+    padding: 20px 0 30px;
+  }
+}

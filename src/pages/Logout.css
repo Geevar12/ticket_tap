@@ -1,0 +1,20 @@
+.logout-page {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #232a34 0%, #19202a 100%);
+  display: block;
+  padding-top: 60px;
+}
+
+.logout-card {
+  background: #fff;
+  padding: 48px 36px 32px 36px;
+  border-radius: 18px;
+  box-shadow: 0 8px 40px rgba(44,62,80,0.13);
+  max-width: 370px;
+  width: 100%;
+  text-align: center;
+  position: relative;
+  z-index: 1;
+  margin: 0 auto;
+  margin-top: 40px;
+}

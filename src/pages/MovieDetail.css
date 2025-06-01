@@ -1,0 +1,132 @@
+.movie-detail {
+  padding-top: 0;
+}
+
+.movie-hero {
+  background: linear-gradient(135deg, #232a34 0%, #19202a 100%);
+  color: #fff;
+  padding: 60px 0;
+}
+
+.movie-hero-content {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: 50px;
+  align-items: start;
+}
+
+.movie-poster-large img {
+  width: 100%;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(44, 62, 80, 0.22);
+}
+
+.movie-info-large h1 {
+  font-size: 2.5rem;
+  margin-bottom: 20px;
+  line-height: 1.2;
+  background: linear-gradient(135deg, #f84464, #e74c3c);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.movie-meta {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 15px;
+  flex-wrap: wrap;
+}
+
+.movie-meta span {
+  background: rgba(255, 255, 255, 0.18);
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+}
+
+.movie-genre-large {
+  font-size: 1.1rem;
+  margin-bottom: 20px;
+  opacity: 0.9;
+}
+
+.movie-description {
+  font-size: 1.1rem;
+  line-height: 1.6;
+  margin-bottom: 30px;
+  opacity: 0.95;
+}
+
+.movie-cast {
+  margin-bottom: 40px;
+}
+
+.movie-cast h3 {
+  font-size: 1.3rem;
+  margin-bottom: 10px;
+  color: #f84464;
+}
+
+.book-now-btn {
+  font-size: 1.2rem;
+  padding: 15px 30px;
+  background: linear-gradient(135deg, #f84464, #e74c3c);
+  color: #fff;
+  border: none;
+}
+
+.showtimes-section {
+  padding: 50px 0;
+  background: #fff;
+}
+
+.showtimes-section h2 {
+  text-align: center;
+  margin-bottom: 30px;
+  color: #23272f;
+}
+
+.showtimes-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 20px;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.showtime-btn {
+  padding: 15px 20px;
+  border: 2px solid #f84464;
+  background: #fff;
+  color: #f84464;
+  text-decoration: none;
+  text-align: center;
+  border-radius: 8px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.showtime-btn:hover {
+  background: #f84464;
+  color: #fff;
+  transform: translateY(-2px);
+}
+
+@media (max-width: 768px) {
+  .movie-hero-content {
+    grid-template-columns: 1fr;
+    gap: 30px;
+    text-align: center;
+  }
+  .movie-info-large h1 {
+    font-size: 2rem;
+  }
+  .movie-meta {
+    justify-content: center;
+  }
+  .showtimes-grid {
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 15px;
+  }
+}
