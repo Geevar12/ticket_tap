@@ -1,7 +1,12 @@
 .login-page {
   min-height: 100vh;
   width:100%;
-  background: linear-gradient(135deg, #232a34 0%, #19202a 100%);
+  position: relative;
+  overflow: hidden;
+  background: url('https://w.wallhaven.cc/full/42/wallhaven-42roy9.jpg');
+  background-size: cover, cover;
+  background-position: center, center;
+  background-repeat: no-repeat, no-repeat;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -9,12 +14,24 @@
   margin:0;
 }
 
+.login-page::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  /* Remove dark overlays, keep only a very light radial for accent */
+  background: radial-gradient(circle at 60% 40%, #f8446411 0%, transparent 70%);
+  opacity: 1;
+  pointer-events: none;
+}
+
 .login-card {
   background: #fff;
-  padding: 48px 36px 32px 36px;
-  border-radius: 18px;
-  box-shadow: 0 8px 40px rgba(44,62,80,0.13);
-  max-width: 400px;
+  padding: 32px 18px 24px 18px;
+  border-radius: 12px;
+  box-shadow: 0 4px 18px rgba(44,62,80,0.13);
+  border: none;
+  max-width: 340px;
   width: 100%;
   text-align: center;
   position: relative;
@@ -23,6 +40,12 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  transition: none;
+}
+
+.login-card::before,
+.login-card::after {
+  display: none !important;
 }
 
 /* Remove logo styles */
@@ -32,11 +55,13 @@
 }
 
 .login-title {
-  font-size: 1.7rem;
-  font-weight: 700;
-  margin-bottom: 28px;
+  font-size: 2rem;
+  font-weight: 800;
+  margin-bottom: 32px;
   color: #f84464;
-  letter-spacing: 0.5px;
+  letter-spacing: 1px;
+  font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;
+  text-shadow: 0 2px 8px #f8446422;
 }
 
 .input-group {
@@ -56,16 +81,19 @@
   width: 100%;
   padding: 12px 14px;
   border: 1.5px solid #ececec;
-  border-radius: 8px;
-  font-size: 1rem;
+  border-radius: 10px;
+  font-size: 1.08rem;
   outline: none;
-  transition: border 0.2s;
-  background: #f5f6fa;
+  transition: border 0.2s, box-shadow 0.2s;
+  background: #f7f7fa;
   color: #23272f;
+  box-shadow: 0 1px 4px #f8446411;
 }
 
 .input-group input:focus {
   border-color: #f84464;
+  box-shadow: 0 2px 8px #f8446422;
+  background: #fff;
 }
 
 .login-error {
@@ -74,6 +102,19 @@
   font-weight: 600;
   text-align: left;
   width: 100%;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 1rem;
+  margin-bottom: 18px;
+  border-left: 4px solid;
+  background: #fff7f7;
+  box-shadow: 0 1px 8px #f8446422;
+}
+
+.login-error {
+  border-color: #e74c3c;
+  color: #c0392b;
+  background: #fff6f6;
 }
 
 .login-success {
@@ -82,25 +123,40 @@
   font-weight: 600;
   text-align: left;
   width: 100%;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 1rem;
+  margin-bottom: 18px;
+  border-left: 4px solid;
+  background: #fff7f7;
+  box-shadow: 0 1px 8px #f8446422;
+}
+
+.login-success {
+  border-color: #27ae60;
+  color: #218c53;
+  background: #f6fff8;
 }
 
 .login-btn {
   width: 100%;
   padding: 14px 0;
-  font-size: 1.1rem;
-  border-radius: 8px;
-  margin-top: 8px;
-  font-weight: 700;
+  font-size: 1.15rem;
+  border-radius: 10px;
+  margin-top: 18px;
+  font-weight: 800;
   background: linear-gradient(90deg, #f84464 60%, #e74c3c 100%);
   color: #fff;
   border: none;
-  box-shadow: 0 2px 12px #f8446422;
-  transition: background 0.2s, transform 0.2s;
+  box-shadow: 0 4px 16px #f8446422;
+  letter-spacing: 0.5px;
+  transition: background 0.2s, transform 0.2s, box-shadow 0.2s;
 }
 
 .login-btn:hover {
   background: linear-gradient(90deg, #e74c3c 60%, #f84464 100%);
-  transform: translateY(-2px) scale(1.03);
+  transform: translateY(-2px) scale(1.04);
+  box-shadow: 0 8px 24px #f8446422;
 }
 
 .login-footer {
@@ -153,9 +209,12 @@
 .password-input-wrap input {
   flex: 1;
   padding-right: 38px;
+  /* Password will be hidden by default if input[type="password"] is used in HTML/JSX */
 }
 
+/* Show toggle password button (eye icon) */
 .toggle-password-btn {
+  display: block !important;
   position: absolute;
   right: 8px;
   top: 50%;
@@ -178,10 +237,13 @@
 @media (max-width: 500px) {
   .login-card {
     padding: 28px 8px 20px 8px;
+    border-radius: 10px;
+    box-shadow: 0 4px 18px rgba(44,62,80,0.13);
   }
 
   .login-title {
     font-size: 1.2rem;
     margin-bottom: 18px;
+    letter-spacing: 0.5px;
   }
 }
