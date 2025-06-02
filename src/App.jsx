@@ -10,6 +10,7 @@ import EventDetail from './pages/EventDetail';
 import Booking from './pages/Booking';
 import Login from './pages/Login';
 import Logout from './pages/Logout';
+import Admin from './pages/Admin';
 import './App.css';
 
 // Auth wrapper for protected routes
@@ -17,6 +18,17 @@ function RequireAuth({ children }) {
   const loggedIn = localStorage.getItem('loggedIn') === 'true';
   const location = useLocation();
   if (!loggedIn) {
+    return <Navigate to="/login" state={{ from: location }} replace />;
+  }
+  return children;
+}
+
+// Admin auth wrapper
+function RequireAdmin({ children }) {
+  const loggedIn = localStorage.getItem('loggedIn') === 'true';
+  const isAdmin = localStorage.getItem('isAdmin') === 'true';
+  const location = useLocation();
+  if (!loggedIn || !isAdmin) {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
   return children;
@@ -52,6 +64,15 @@ function App() {
         />
         {/* Logout route */}
         <Route path="/logout" element={<Logout />} />
+        {/* Admin dashboard route */}
+        <Route
+          path="/admin"
+          element={
+            <RequireAdmin>
+              <Admin />
+            </RequireAdmin>
+          }
+        />
         {/* Main app layout with Navbar/Footer */}
         <Route element={<MainLayout />}>
           <Route

@@ -74,8 +74,55 @@
 .movies-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 35px;
+  gap: 70px;
   margin-top: 50px;
+}
+
+.movie-tabs {
+  display: flex;
+  gap: 18px;
+  justify-content: center;
+  margin-bottom: 32px;
+}
+
+.movie-tab-btn {
+  padding: 12px 32px;
+  border: none;
+  border-radius: 25px;
+  background: #ececec;
+  color: #23272f;
+  font-weight: 700;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+
+.movie-tab-btn.active,
+.movie-tab-btn:hover {
+  background: linear-gradient(135deg, #f84464, #e74c3c);
+  color: #fff;
+}
+
+.section-header-flex {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.section-viewall-btn {
+  font-size: 1rem;
+  padding: 10px 22px;
+  border-radius: 20px;
+  margin-left: 18px;
+  background: linear-gradient(135deg, #3b5998, #192f6a);
+  color: #fff;
+  border: none;
+  font-weight: 600;
+  transition: background 0.2s;
+}
+
+.section-viewall-btn:hover {
+  background: linear-gradient(135deg, #192f6a, #3b5998);
 }
 
 @media (max-width: 768px) {

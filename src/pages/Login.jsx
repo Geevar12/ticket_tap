@@ -2,6 +2,9 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './Login.css';
 
+const ADMIN_EMAIL = 'admin@tickettap.com';
+const ADMIN_PASSWORD = 'admin123';
+
 const Login = ({ onLogin }) => {
   const [isSignup, setIsSignup] = useState(false);
   const [email, setEmail] = useState('');
@@ -24,8 +27,17 @@ const Login = ({ onLogin }) => {
       return;
     }
     setError('');
-    // Simple login for testing
+    // Admin login
+    if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
+      localStorage.setItem('loggedIn', 'true');
+      localStorage.setItem('isAdmin', 'true');
+      navigate('/admin', { replace: true });
+      if (onLogin) onLogin();
+      return;
+    }
+    // Regular login
     localStorage.setItem('loggedIn', 'true');
+    localStorage.removeItem('isAdmin');
     navigate('/home', { replace: true });
     if (onLogin) onLogin();
   };
