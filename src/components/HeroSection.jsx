@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import './HeroSection.css';
 
-const HERO_IMG = "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&w=800&q=80"; // Stylish cinema image
+const HERO_IMG = "https://4kwallpapers.com/images/walls/thumbs_3t/13940.jpg"; // Stylish cinema image
 
 const HeroSection = () => {
   return (

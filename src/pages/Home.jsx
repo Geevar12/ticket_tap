@@ -1,16 +1,23 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import HeroSection from '../components/HeroSection';
 import MovieCard from '../components/MovieCard';
-import { movies, events } from '../data/mockData';
 import './Home.css';
 
 const Home = () => {
   const navigate = useNavigate();
+  const [movies, setMovies] = useState([]);
+
+  useEffect(() => {
+    fetch('http://localhost:3001/api/movies')
+      .then(res => res.json())
+      .then(data => setMovies(data))
+      .catch(() => setMovies([]));
+  }, []);
+
   // Show first 6 for each section
   const nowShowingMovies = movies.slice(0, 6);
   const upcomingMovies = movies.slice(6, 12);
-  const nearbyEvents = events.slice(0, 3);
 
   return (
     <div className="home">
@@ -29,7 +36,7 @@ const Home = () => {
           </div>
           <div className="carousel">
             {nowShowingMovies.map(movie => (
-              <MovieCard key={movie.id} movie={movie} />
+              <MovieCard key={movie._id || movie.id} movie={movie} />
             ))}
           </div>
         </div>
@@ -48,18 +55,7 @@ const Home = () => {
           </div>
           <div className="carousel">
             {upcomingMovies.map(movie => (
-              <MovieCard key={movie.id} movie={movie} />
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="section">
-        <div className="container">
-          <h2 className="section-title">Events Near You</h2>
-          <div className="carousel">
-            {nearbyEvents.map(event => (
-              <MovieCard key={event.id} movie={event} type="event" />
+              <MovieCard key={movie._id || movie.id} movie={movie} />
             ))}
           </div>
         </div>
