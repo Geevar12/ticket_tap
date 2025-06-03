@@ -1,11 +1,23 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { movies } from '../data/mockData';
 import './MovieDetail.css';
 
 const MovieDetail = () => {
   const { id } = useParams();
-  const movie = movies.find(m => m.id === parseInt(id));
+  const [movie, setMovie] = useState(null);
+
+  useEffect(() => {
+    fetch(`http://localhost:3001/api/movies`)
+      .then(res => res.json())
+      .then(data => {
+        // Try to match by _id or id
+        const found = data.find(
+          m => m._id === id || m.id?.toString() === id
+        );
+        setMovie(found || null);
+      })
+      .catch(() => setMovie(null));
+  }, [id]);
 
   if (!movie) {
     return <div className="container">Movie not found</div>;
@@ -36,7 +48,7 @@ const MovieDetail = () => {
               </div>
               
               <Link 
-                to={`/booking/movie/${movie.id}`} 
+                to={`/booking/movie/${movie._id || movie.id}`} 
                 className="btn btn-primary book-now-btn"
               >
                 Book Tickets - ₹{movie.price}
@@ -50,10 +62,10 @@ const MovieDetail = () => {
         <div className="container">
           <h2>Show Times</h2>
           <div className="showtimes-grid">
-            {movie.showtimes.map((time, index) => (
+            {(movie.showtimes || []).map((time, index) => (
               <Link 
                 key={index}
-                to={`/booking/movie/${movie.id}`}
+                to={`/booking/movie/${movie._id || movie.id}`}
                 className="showtime-btn"
               >
                 {time}

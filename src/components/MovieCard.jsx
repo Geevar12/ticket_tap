@@ -9,7 +9,7 @@ const MovieCard = ({ movie, type = 'movie' }) => {
         <img src={movie.poster} alt={movie.title} />
         <div className="movie-overlay">
           <Link 
-            to={`/${type === 'event' ? 'event' : 'movie'}/${movie.id}`} 
+            to={`/${type === 'event' ? 'event' : 'movie'}/${movie._id || movie.id}`} 
             className="btn btn-primary movie-btn"
           >
             View Details

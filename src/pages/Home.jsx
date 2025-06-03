@@ -15,9 +15,9 @@ const Home = () => {
       .catch(() => setMovies([]));
   }, []);
 
-  // Show first 6 for each section
-  const nowShowingMovies = movies.slice(0, 6);
-  const upcomingMovies = movies.slice(6, 12);
+  // Show all movies for each section, filtered by 'upcoming' property as "yes" or "no"
+  const nowShowingMovies = movies.filter(m => m.upcoming !== "yes");
+  const upcomingMovies = movies.filter(m => m.upcoming === "yes");
 
   return (
     <div className="home">

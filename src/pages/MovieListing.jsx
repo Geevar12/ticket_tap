@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import MovieCard from '../components/MovieCard';
-import { movies } from '../data/mockData';
 import './MovieListing.css';
 
 function useQuery() {
@@ -11,8 +10,16 @@ function useQuery() {
 const MovieListing = () => {
   const [selectedGenre, setSelectedGenre] = useState('All');
   const [tab, setTab] = useState('now-showing');
+  const [movies, setMovies] = useState([]);
   const location = useLocation();
   const query = useQuery();
+
+  useEffect(() => {
+    fetch('http://localhost:3001/api/movies')
+      .then(res => res.json())
+      .then(data => setMovies(data))
+      .catch(() => setMovies([]));
+  }, []);
 
   useEffect(() => {
     const tabParam = query.get('tab');
@@ -22,14 +29,14 @@ const MovieListing = () => {
 
   const genres = ['All', 'Action', 'Adventure', 'Comedy', 'Drama', 'Sci-Fi', 'Thriller', 'Romance'];
 
-  // Demo: first 6 are now showing, rest are upcoming
-  const nowShowingMovies = movies.slice(0, 6);
-  const upcomingMovies = movies.slice(6);
+  // Filter movies based on 'upcoming' property
+  const nowShowingMovies = movies.filter(m => m.upcoming !== "yes");
+  const upcomingMovies = movies.filter(m => m.upcoming === "yes");
 
   let filteredMovies = tab === 'now-showing' ? nowShowingMovies : upcomingMovies;
   filteredMovies = selectedGenre === 'All'
     ? filteredMovies
-    : filteredMovies.filter(movie => movie.genre.includes(selectedGenre));
+    : filteredMovies.filter(movie => movie.genre && movie.genre.includes(selectedGenre));
 
   return (
     <div className="movie-listing">
@@ -71,7 +78,7 @@ const MovieListing = () => {
 
         <div className="movies-grid">
           {filteredMovies.map(movie => (
-            <MovieCard key={movie.id} movie={movie} />
+            <MovieCard key={movie._id || movie.id} movie={movie} />
           ))}
         </div>
       </div>

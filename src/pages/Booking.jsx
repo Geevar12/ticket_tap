@@ -1,15 +1,42 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { movies, events } from '../data/mockData';
+// import { movies, events } from '../data/mockData';
 import './Booking.css';
 
 const Booking = () => {
   const { type, id } = useParams();
   const [selectedSeats, setSelectedSeats] = useState([]);
-  
-  const item = type === 'movie' 
-    ? movies.find(m => m.id === parseInt(id))
-    : events.find(e => e.id === parseInt(id));
+  const [item, setItem] = useState(null);
+  const [selectedSeatType, setSelectedSeatType] = useState('');
+  const [seatTypePrice, setSeatTypePrice] = useState(0);
+
+  useEffect(() => {
+    if (type === 'movie') {
+      fetch('http://localhost:3001/api/movies')
+        .then(res => res.json())
+        .then(data => {
+          const found = data.find(
+            m => m._id === id || m.id?.toString() === id
+          );
+          setItem(found || null);
+          // Set default seat type if available
+          if (found && found.seatPrices && found.seatPrices.length > 0) {
+            setSelectedSeatType(found.seatPrices[0].type);
+            setSeatTypePrice(found.seatPrices[0].price);
+          }
+        })
+        .catch(() => setItem(null));
+    } else {
+      setItem(null); // You can implement event fetching if needed
+    }
+  }, [type, id]);
+
+  useEffect(() => {
+    if (item && item.seatPrices && item.seatPrices.length > 0) {
+      const seatTypeObj = item.seatPrices.find(sp => sp.type === selectedSeatType);
+      setSeatTypePrice(seatTypeObj ? seatTypeObj.price : 0);
+    }
+  }, [selectedSeatType, item]);
 
   if (!item) {
     return <div className="container">Item not found</div>;
@@ -19,7 +46,6 @@ const Booking = () => {
   const generateSeats = () => {
     const seats = [];
     const rows = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
-    
     for (let row of rows) {
       for (let seat = 1; seat <= 10; seat++) {
         const seatId = `${row}${seat}`;
@@ -37,7 +63,7 @@ const Booking = () => {
   };
 
   const seats = generateSeats();
-  const totalPrice = selectedSeats.length * item.price;
+  const totalPrice = selectedSeats.length * (seatTypePrice || item.price);
 
   const handleSeatClick = (seatId) => {
     const seat = seats.find(s => s.id === seatId);
@@ -59,7 +85,26 @@ const Booking = () => {
             <div className="item-details">
               <h1>{item.title}</h1>
               <p>{type === 'movie' ? item.genre : `${item.date} • ${item.venue}`}</p>
-              <p className="price">₹{item.price} per ticket</p>
+              {/* Seat type selector */}
+              {item.seatPrices && item.seatPrices.length > 0 ? (
+                <div className="seat-type-selector">
+                  <label htmlFor="seatType">Seat Type:</label>
+                  <select
+                    id="seatType"
+                    value={selectedSeatType}
+                    onChange={e => setSelectedSeatType(e.target.value)}
+                  >
+                    {item.seatPrices.map(sp => (
+                      <option key={sp.type} value={sp.type}>
+                        {sp.type} (₹{sp.price})
+                      </option>
+                    ))}
+                  </select>
+                  <span className="price">₹{seatTypePrice} per ticket</span>
+                </div>
+              ) : (
+                <p className="price">₹{item.price} per ticket</p>
+              )}
             </div>
           </div>
         </div>

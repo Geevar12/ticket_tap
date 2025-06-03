@@ -20,7 +20,7 @@ const Login = ({ onLogin }) => {
   const [showSignupConfirm, setShowSignupConfirm] = useState(false);
   const navigate = useNavigate();
 
-  const handleLogin = e => {
+  const handleLogin = async e => {
     e.preventDefault();
     if (!email || !password) {
       setError('Please enter both email and password.');
@@ -35,14 +35,28 @@ const Login = ({ onLogin }) => {
       if (onLogin) onLogin();
       return;
     }
-    // Regular login
-    localStorage.setItem('loggedIn', 'true');
-    localStorage.removeItem('isAdmin');
-    navigate('/home', { replace: true });
-    if (onLogin) onLogin();
+    // Regular login: check with backend
+    try {
+      const res = await fetch('http://localhost:3001/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
+      if (res.ok) {
+        localStorage.setItem('loggedIn', 'true');
+        localStorage.removeItem('isAdmin');
+        navigate('/home', { replace: true });
+        if (onLogin) onLogin();
+      } else {
+        const data = await res.json();
+        setError(data.error || 'Login failed.');
+      }
+    } catch {
+      setError('Login failed.');
+    }
   };
 
-  const handleSignup = e => {
+  const handleSignup = async e => {
     e.preventDefault();
     if (!signupEmail || !signupPassword || !signupConfirm) {
       setSignupError('Please fill all fields.');
@@ -55,10 +69,27 @@ const Login = ({ onLogin }) => {
       return;
     }
     setSignupError('');
-    setSignupSuccess('Account created! You can now log in.');
-    setSignupEmail('');
-    setSignupPassword('');
-    setSignupConfirm('');
+    // Send signup details to backend
+    try {
+      const res = await fetch('http://localhost:3001/api/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: signupEmail, password: signupPassword })
+      });
+      if (res.ok) {
+        setSignupSuccess('Account created! You can now log in.');
+        setSignupEmail('');
+        setSignupPassword('');
+        setSignupConfirm('');
+      } else {
+        const data = await res.json();
+        setSignupError(data.error || 'Signup failed.');
+        setSignupSuccess('');
+      }
+    } catch {
+      setSignupError('Signup failed.');
+      setSignupSuccess('');
+    }
   };
 
   return (

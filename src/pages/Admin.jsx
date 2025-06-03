@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { movies as initialMovies, events as initialEvents } from '../data/mockData';
+// import { movies as initialMovies, events as initialEvents } from '../data/mockData';
 import './Admin.css';
 
 const emptyMovie = {
@@ -33,17 +33,18 @@ const Admin = () => {
   const navigate = useNavigate();
   const [showConfirm, setShowConfirm] = useState(false);
   const [section, setSection] = useState('dashboard');
-  const [movies, setMovies] = useState(
-    initialMovies.map(m => ({
-      ...m,
-      seatPrices: m.seatPrices || [
-        { type: 'Regular', price: m.price || '' },
-        { type: 'Premium', price: m.price ? m.price + 50 : '' },
-        { type: 'VIP', price: m.price ? m.price + 100 : '' }
-      ]
-    }))
-  );
-  const [events, setEvents] = useState(initialEvents.map(e => ({ ...e })));
+  const [movies, setMovies] = useState([]);
+  // Keep events from mockData or implement similar fetch if needed
+  // const [events, setEvents] = useState(initialEvents.map(e => ({ ...e })));
+  const [events, setEvents] = useState([]);
+
+  // Fetch movies from backend on mount
+  useEffect(() => {
+    fetch('http://localhost:3001/api/movies')
+      .then(res => res.json())
+      .then(data => setMovies(data))
+      .catch(() => setMovies([]));
+  }, []);
 
   // Movie form state
   const [editingMovie, setEditingMovie] = useState(null);
@@ -131,11 +132,28 @@ const Admin = () => {
     setMovieForm(emptyMovie);
   };
 
-  const deleteMovie = id => {
-    setMovies(movies.filter(m => m.id !== id));
-    if (editingMovie === id) {
-      setEditingMovie(null);
-      setMovieForm(emptyMovie);
+  const deleteMovie = async id => {
+    // Find the movie in state to get its _id (MongoDB id)
+    const movie = movies.find(m => m.id === id || m._id === id);
+    const mongoId = movie && (movie._id || movie.id);
+    if (!mongoId) return;
+
+    try {
+      const res = await fetch(`http://localhost:3001/api/movies/${mongoId}`, {
+        method: 'DELETE'
+      });
+      if (res.ok) {
+        setMovies(movies.filter(m => (m._id || m.id) !== mongoId));
+        if (editingMovie === id) {
+          setEditingMovie(null);
+          setMovieForm(emptyMovie);
+        }
+      } else {
+        // Optionally handle error
+        alert('Failed to delete movie from database.');
+      }
+    } catch {
+      alert('Failed to delete movie from database.');
     }
   };
 
