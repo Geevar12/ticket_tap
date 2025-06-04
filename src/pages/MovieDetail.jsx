@@ -51,26 +51,9 @@ const MovieDetail = () => {
                 to={`/booking/movie/${movie._id || movie.id}`} 
                 className="btn btn-primary book-now-btn"
               >
-                Book Tickets - ₹{movie.price}
+                Book Tickets
               </Link>
             </div>
-          </div>
-        </div>
-      </div>
-      
-      <div className="showtimes-section">
-        <div className="container">
-          <h2>Show Times</h2>
-          <div className="showtimes-grid">
-            {(movie.showtimes || []).map((time, index) => (
-              <Link 
-                key={index}
-                to={`/booking/movie/${movie._id || movie.id}`}
-                className="showtime-btn"
-              >
-                {time}
-              </Link>
-            ))}
           </div>
         </div>
       </div>
