@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 // import { movies, events } from '../data/mockData';
 import './Booking.css';
@@ -9,6 +9,9 @@ const Booking = () => {
   const [item, setItem] = useState(null);
   const [selectedSeatType, setSelectedSeatType] = useState('');
   const [seatTypePrice, setSeatTypePrice] = useState(0);
+
+  // Persist booked seats per movie for the session
+  const bookedSeatsMapRef = useRef({});
 
   useEffect(() => {
     if (type === 'movie') {
@@ -29,6 +32,7 @@ const Booking = () => {
     } else {
       setItem(null); // You can implement event fetching if needed
     }
+    setSelectedSeats([]); // Reset selected seats when movie changes
   }, [type, id]);
 
   useEffect(() => {
@@ -38,10 +42,6 @@ const Booking = () => {
     }
   }, [selectedSeatType, item]);
 
-  if (!item) {
-    return <div className="container">Item not found</div>;
-  }
-
   // Generate seat layout (10 rows, 10 seats each)
   const generateSeats = () => {
     const seats = [];
@@ -49,25 +49,43 @@ const Booking = () => {
     for (let row of rows) {
       for (let seat = 1; seat <= 10; seat++) {
         const seatId = `${row}${seat}`;
-        const isBooked = Math.random() < 0.1; // 10% seats randomly booked
         seats.push({
           id: seatId,
           row,
           number: seat,
-          isBooked,
+          isBooked: false,
           isSelected: selectedSeats.includes(seatId)
         });
       }
+    }
+    // Only generate booked seats once per movie per session
+    if (item) {
+      const movieKey = item._id || item.id;
+      if (!bookedSeatsMapRef.current[movieKey]) {
+        const totalSeats = seats.length;
+        const bookedCount = 10;
+        const bookedIndexes = new Set();
+        while (bookedIndexes.size < bookedCount) {
+          bookedIndexes.add(Math.floor(Math.random() * totalSeats));
+        }
+        bookedSeatsMapRef.current[movieKey] = Array.from(bookedIndexes).map(idx => seats[idx].id);
+      }
+      // Mark the seats as booked
+      seats.forEach(seat => {
+        if (bookedSeatsMapRef.current[movieKey].includes(seat.id)) {
+          seat.isBooked = true;
+        }
+      });
     }
     return seats;
   };
 
   const seats = generateSeats();
-  const totalPrice = selectedSeats.length * (seatTypePrice || item.price);
+  const totalPrice = selectedSeats.length * (seatTypePrice || item?.price || 0);
 
   const handleSeatClick = (seatId) => {
     const seat = seats.find(s => s.id === seatId);
-    if (seat.isBooked) return;
+    if (!seat || seat.isBooked) return;
 
     if (selectedSeats.includes(seatId)) {
       setSelectedSeats(selectedSeats.filter(id => id !== seatId));
@@ -75,6 +93,10 @@ const Booking = () => {
       setSelectedSeats([...selectedSeats, seatId]);
     }
   };
+
+  if (!item) {
+    return <div className="container">Item not found</div>;
+  }
 
   return (
     <div className="booking">
