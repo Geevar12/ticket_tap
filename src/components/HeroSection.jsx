@@ -9,11 +9,10 @@ const HeroSection = () => {
     <section className="hero">
       <div className="hero-content">
         <div className="hero-text">
-          <h1>Experience Movies & Events Like Never Before</h1>
-          <p>Book tickets for the latest blockbusters and trending events. Enjoy a seamless, secure, and fast booking experience with TicketTap.</p>
+          <h1>Experience Movies Like Never Before</h1>
+          <p>Book tickets for the latest blockbusters. Enjoy a seamless, secure and fast booking experience with Nova Cinemas.</p>
           <div className="hero-buttons">
             <Link to="/movies" className="btn btn-primary">Browse Movies</Link>
-            <Link to="/events" className="btn btn-secondary">Find Events</Link>
           </div>
         </div>
         <div className="hero-image">

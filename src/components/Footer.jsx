@@ -7,8 +7,8 @@ const Footer = () => {
       <div className="container">
         <div className="footer-content">
           <div className="footer-section">
-            <h3>TicketTap</h3>
-            <p>Your one-stop destination for movie and event bookings.</p>
+            <h3>Nova Cinemas</h3>
+            <p>Your one-stop destination for movie bookings.</p>
           </div>
           
           <div className="footer-section">
@@ -16,7 +16,6 @@ const Footer = () => {
             <ul>
               <li><a href="/">Home</a></li>
               <li><a href="/movies">Movies</a></li>
-              <li><a href="/events">Events</a></li>
             </ul>
           </div>
           

@@ -3,18 +3,21 @@ import { Link } from 'react-router-dom';
 import './MovieCard.css';
 
 const MovieCard = ({ movie, type = 'movie' }) => {
+  const isUpcoming = movie.upcoming === "yes";
   return (
-    <div className="movie-card">
+    <div className={`movie-card${isUpcoming ? ' no-hover' : ''}`}>
       <div className="movie-poster">
         <img src={movie.poster} alt={movie.title} />
-        <div className="movie-overlay">
-          <Link 
-            to={`/${type === 'event' ? 'event' : 'movie'}/${movie._id || movie.id}`} 
-            className="btn btn-primary movie-btn"
-          >
-            View Details
-          </Link>
-        </div>
+        {!isUpcoming && (
+          <div className="movie-overlay">
+            <Link 
+              to={`/${type === 'event' ? 'event' : 'movie'}/${movie._id || movie.id}`} 
+              className="btn btn-primary movie-btn"
+            >
+              View Details
+            </Link>
+          </div>
+        )}
       </div>
       
       <div className="movie-info">
