@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
-const Theatre = ({ theatreName, showtimes, seatPrices, price, movieId }) => {
+const Theatre = ({ theatreName, showtimes, seatPrices, price, movieId, movieName }) => {
   const [selectedShowtime, setSelectedShowtime] = useState(showtimes[0] || '');
   const [selectedSeats, setSelectedSeats] = useState([]);
   const [selectedSeatType, setSelectedSeatType] = useState(seatPrices && seatPrices.length > 0 ? seatPrices[0].type : '');
@@ -8,6 +9,7 @@ const Theatre = ({ theatreName, showtimes, seatPrices, price, movieId }) => {
 
   // Persist booked seats per theatre+showtime+movie for the session
   const bookedSeatsMapRef = useRef({});
+  const navigate = useNavigate();
 
   useEffect(() => {
     // Reset seats when showtime or theatre changes
@@ -69,6 +71,20 @@ const Theatre = ({ theatreName, showtimes, seatPrices, price, movieId }) => {
     } else {
       setSelectedSeats([...selectedSeats, seatId]);
     }
+  };
+
+  const handleProceed = () => {
+    navigate('/booking/payment', {
+      state: {
+        theatreName,
+        showtime: selectedShowtime,
+        seatType: selectedSeatType,
+        seatTypePrice,
+        selectedSeats,
+        totalPrice,
+        movieName, // pass movie name if available
+      }
+    });
   };
 
   return (
@@ -221,6 +237,7 @@ const Theatre = ({ theatreName, showtimes, seatPrices, price, movieId }) => {
             cursor: selectedSeats.length === 0 ? 'not-allowed' : 'pointer',
             transition: 'background 0.2s'
           }}
+          onClick={handleProceed}
         >
           Proceed to Pay
         </button>

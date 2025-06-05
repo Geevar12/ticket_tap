@@ -112,11 +112,12 @@ const Booking = () => {
         </div>
         <div className="booking-content">
           <Theatre
-            theatreName="Theatre 1"
+            theatreName="Screen 1"
             showtimes={item.showtimes || []}
             seatPrices={item.seatPrices}
             price={item.price}
             movieId={item._id || item.id}
+            movieName={item.title}
           />
         </div>
       </div>

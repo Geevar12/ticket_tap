@@ -11,6 +11,8 @@ import Booking from './pages/Booking';
 import Login from './pages/Login';
 import Logout from './pages/Logout';
 import Admin from './pages/Admin';
+import BookingConfirmation from './pages/BookingConfirmation';
+import Payment from './pages/Payment';
 import './App.css';
 
 // Auth wrapper for protected routes
@@ -120,6 +122,22 @@ function App() {
             element={
               <RequireAuth>
                 <Booking />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/booking/payment"
+            element={
+              <RequireAuth>
+                <Payment />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/booking/confirmation"
+            element={
+              <RequireAuth>
+                <BookingConfirmation />
               </RequireAuth>
             }
           />
