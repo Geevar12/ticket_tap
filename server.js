@@ -89,6 +89,52 @@ app.delete('/api/movies/:id', async (req, res) => {
     }
 });
 
+// Book seats endpoint
+app.patch('/api/movies/:id/book-seats', async (req, res) => {
+    const { id } = req.params;
+    const { seats } = req.body;
+    if (!Array.isArray(seats) || seats.length === 0) {
+        return res.status(400).json({ error: 'No seats provided' });
+    }
+    const client = new MongoClient(uri);
+    try {
+        await client.connect();
+        const db = client.db('tickettap');
+        const movies = db.collection('movies');
+        // Find the movie
+        const movie = await movies.findOne({ _id: new ObjectId(id) });
+        if (!movie) {
+            return res.status(404).json({ error: 'Movie not found' });
+        }
+        // Prepare new arrays
+        const availableSeats = Array.isArray(movie.availableSeats) ? movie.availableSeats : [];
+        const bookedSeats = Array.isArray(movie.bookedSeats) ? movie.bookedSeats : [];
+        // Only book seats that are actually available
+        const seatsToBook = seats.filter(seat => availableSeats.includes(seat) && !bookedSeats.includes(seat));
+        if (seatsToBook.length === 0) {
+            return res.status(400).json({ error: 'No valid seats to book' });
+        }
+        // Update arrays
+        const newAvailableSeats = availableSeats.filter(seat => !seatsToBook.includes(seat));
+        const newBookedSeats = [...bookedSeats, ...seatsToBook];
+        // Update in DB
+        await movies.updateOne(
+            { _id: new ObjectId(id) },
+            {
+                $set: {
+                    availableSeats: newAvailableSeats,
+                    bookedSeats: newBookedSeats
+                }
+            }
+        );
+        res.status(200).json({ message: 'Seats booked', bookedSeats: newBookedSeats, availableSeats: newAvailableSeats });
+    } catch (err) {
+        res.status(500).json({ error: 'Failed to book seats' });
+    } finally {
+        await client.close();
+    }
+});
+
 app.get('/api/movies', getMovies);
 
 const PORT = process.env.PORT || 3001;

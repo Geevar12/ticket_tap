@@ -7,17 +7,19 @@ import './Home.css';
 const Home = () => {
   const navigate = useNavigate();
   const [movies, setMovies] = useState([]);
+  const [events, setEvents] = useState([]); // If you have events in backend, fetch similarly
 
   useEffect(() => {
     fetch('http://localhost:3001/api/movies')
       .then(res => res.json())
       .then(data => setMovies(data))
       .catch(() => setMovies([]));
+    // Optionally fetch events if needed
   }, []);
 
-  // Show all movies for each section, filtered by 'upcoming' property as "yes" or "no"
-  const nowShowingMovies = movies.filter(m => m.upcoming !== "yes");
-  const upcomingMovies = movies.filter(m => m.upcoming === "yes");
+  // Show first 6 for each section
+  const nowShowingMovies = movies.filter(m => m.upcoming !== "yes").slice(0, 6);
+  const upcomingMovies = movies.filter(m => m.upcoming === "yes").slice(0, 6);
 
   return (
     <div className="home">
@@ -60,6 +62,18 @@ const Home = () => {
           </div>
         </div>
       </section>
+
+      {/* Events section can be restored if you fetch events */}
+      {/* <section className="section">
+        <div className="container">
+          <h2 className="section-title">Events Near You</h2>
+          <div className="carousel">
+            {events.slice(0, 3).map(event => (
+              <MovieCard key={event._id || event.id} movie={event} type="event" />
+            ))}
+          </div>
+        </div>
+      </section> */}
     </div>
   );
 };

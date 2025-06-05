@@ -29,7 +29,6 @@ const MovieListing = () => {
 
   const genres = ['All', 'Action', 'Adventure', 'Comedy', 'Drama', 'Sci-Fi', 'Thriller', 'Romance'];
 
-  // Filter movies based on 'upcoming' property
   const nowShowingMovies = movies.filter(m => m.upcoming !== "yes");
   const upcomingMovies = movies.filter(m => m.upcoming === "yes");
 

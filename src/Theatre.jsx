@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-const Theatre = ({ theatreName, showtimes, seatPrices, price, movieId, movieName }) => {
+const Theatre = ({ theatreName, showtimes, seatPrices, price, movieId, movieName, bookedSeats: bookedSeatsFromDb }) => {
   const [selectedShowtime, setSelectedShowtime] = useState(showtimes[0] || '');
   const [selectedSeats, setSelectedSeats] = useState([]);
   const [selectedSeatType, setSelectedSeatType] = useState(seatPrices && seatPrices.length > 0 ? seatPrices[0].type : '');
@@ -39,20 +39,27 @@ const Theatre = ({ theatreName, showtimes, seatPrices, price, movieId, movieName
         });
       }
     }
-    // Only generate booked seats once per movie+theatre+showtime per session
-    const key = `${movieId}_${theatreName}_${selectedShowtime}`;
-    if (!bookedSeatsMapRef.current[key]) {
-      const totalSeats = seats.length;
-      const bookedCount = 10;
-      const bookedIndexes = new Set();
-      while (bookedIndexes.size < bookedCount) {
-        bookedIndexes.add(Math.floor(Math.random() * totalSeats));
+    // Use bookedSeats from DB if available
+    let bookedSeatsArr = [];
+    if (Array.isArray(bookedSeatsFromDb)) {
+      bookedSeatsArr = bookedSeatsFromDb;
+    } else {
+      // Only generate booked seats once per movie+theatre+showtime per session (fallback)
+      const key = `${movieId}_${theatreName}_${selectedShowtime}`;
+      if (!bookedSeatsMapRef.current[key]) {
+        const totalSeats = seats.length;
+        const bookedCount = 10;
+        const bookedIndexes = new Set();
+        while (bookedIndexes.size < bookedCount) {
+          bookedIndexes.add(Math.floor(Math.random() * totalSeats));
+        }
+        bookedSeatsMapRef.current[key] = Array.from(bookedIndexes).map(idx => seats[idx].id);
       }
-      bookedSeatsMapRef.current[key] = Array.from(bookedIndexes).map(idx => seats[idx].id);
+      bookedSeatsArr = bookedSeatsMapRef.current[`${movieId}_${theatreName}_${selectedShowtime}`];
     }
     // Mark the seats as booked
     seats.forEach(seat => {
-      if (bookedSeatsMapRef.current[key].includes(seat.id)) {
+      if (bookedSeatsArr && bookedSeatsArr.includes(seat.id)) {
         seat.isBooked = true;
       }
     });
@@ -82,7 +89,9 @@ const Theatre = ({ theatreName, showtimes, seatPrices, price, movieId, movieName
         seatTypePrice,
         selectedSeats,
         totalPrice,
-        movieName, // pass movie name if available
+        movieName,
+        movieId, // this is usually id or _id
+        _id: movieId // ensure _id is passed for MongoDB
       }
     });
   };

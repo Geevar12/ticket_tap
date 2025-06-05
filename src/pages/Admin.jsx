@@ -347,7 +347,7 @@ const Admin = () => {
               )}
               <div className="admin-list-grid">
                 {movies.map(movie => (
-                  <div className="admin-list-card" key={movie.id}>
+                  <div className="admin-list-card" key={movie._id || movie.id}>
                     <img src={movie.poster} alt={movie.title} className="admin-list-img" />
                     <div className="admin-list-info">
                       <h3>{movie.title}</h3>
@@ -362,6 +362,23 @@ const Admin = () => {
                       </div>
                       <div style={{margin:'6px 0'}}>
                         <span style={{fontWeight:600}}>Showtimes:</span> {Array.isArray(movie.showtimes) ? movie.showtimes.join(', ') : movie.showtimes}
+                      </div>
+                      {/* Show booked and available seats */}
+                      <div style={{margin:'6px 0', fontSize:'0.95em'}}>
+                        <span style={{fontWeight:600, color:'#e74c3c'}}>Booked Seats:</span>
+                        <span style={{marginLeft:4}}>
+                          {Array.isArray(movie.bookedSeats) && movie.bookedSeats.length > 0
+                            ? movie.bookedSeats.join(', ')
+                            : <span style={{color:'#888'}}>None</span>}
+                        </span>
+                      </div>
+                      <div style={{margin:'6px 0', fontSize:'0.95em'}}>
+                        <span style={{fontWeight:600, color:'#2d7a2d'}}>Available Seats:</span>
+                        <span style={{marginLeft:4}}>
+                          {Array.isArray(movie.availableSeats) && movie.availableSeats.length > 0
+                            ? movie.availableSeats.join(', ')
+                            : <span style={{color:'#888'}}>None</span>}
+                        </span>
                       </div>
                       <div style={{marginTop:8}}>
                         <button className="btn btn-secondary" style={{fontSize:'0.85rem',marginRight:8}} onClick={() => startEditMovie(movie)}>Edit</button>

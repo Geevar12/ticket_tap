@@ -38,6 +38,12 @@ const MovieDetail = () => {
                 <span className="rating">⭐ {movie.rating}/10</span>
                 <span className="duration">{movie.duration}</span>
                 <span className="language">{movie.language}</span>
+                {movie.releaseDate && (
+                  <span className="release-date">Release: {movie.releaseDate}</span>
+                )}
+                {movie.director && (
+                  <span className="director">Director: {movie.director}</span>
+                )}
               </div>
               <p className="movie-genre-large">{movie.genre}</p>
               <p className="movie-description">{movie.description}</p>

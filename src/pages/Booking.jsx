@@ -118,6 +118,10 @@ const Booking = () => {
             price={item.price}
             movieId={item._id || item.id}
             movieName={item.title}
+            bookedSeats={item.bookedSeats}
+            availableSeats={item.availableSeats}
+            _id={item._id}
+            id={item.id}
           />
         </div>
       </div>

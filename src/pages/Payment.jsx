@@ -71,8 +71,19 @@ const Payment = () => {
             border: 'none'
           }}
           disabled={processing}
-          onClick={() => {
+          onClick={async () => {
             setProcessing(true);
+            // Use _id if available, else fallback to id
+            const movieId = booking._id || booking.id;
+            try {
+              await fetch(`http://localhost:3001/api/movies/${movieId}/book-seats`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ seats: booking.selectedSeats })
+              });
+            } catch (e) {
+              // Optionally handle error
+            }
             setTimeout(() => {
               navigate('/booking/confirmation', {
                 state: {
