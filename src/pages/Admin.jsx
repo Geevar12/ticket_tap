@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-// import { movies as initialMovies, events as initialEvents } from '../data/mockData';
 import './Admin.css';
 
 const emptyMovie = {
@@ -18,41 +17,25 @@ const emptyMovie = {
   showtimes: ''
 };
 
-const emptyEvent = {
-  title: '',
-  poster: '',
-  genre: '',
-  date: '',
-  venue: '',
-  description: '',
-  price: '',
-  showtimes: ''
-};
-
 const Admin = () => {
   const navigate = useNavigate();
   const [showConfirm, setShowConfirm] = useState(false);
   const [section, setSection] = useState('dashboard');
   const [movies, setMovies] = useState([]);
-  // Keep events from mockData or implement similar fetch if needed
-  // const [events, setEvents] = useState(initialEvents.map(e => ({ ...e })));
-  const [events, setEvents] = useState([]);
+  const [editingMovie, setEditingMovie] = useState(null);
+  const [movieForm, setMovieForm] = useState(emptyMovie);
 
-  // Fetch movies from backend on mount
-  useEffect(() => {
+  // Fetch movies from backend on mount and after changes
+  const fetchMovies = () => {
     fetch('http://localhost:3001/api/movies')
       .then(res => res.json())
       .then(data => setMovies(data))
       .catch(() => setMovies([]));
+  };
+
+  useEffect(() => {
+    fetchMovies();
   }, []);
-
-  // Movie form state
-  const [editingMovie, setEditingMovie] = useState(null);
-  const [movieForm, setMovieForm] = useState(emptyMovie);
-
-  // Event form state
-  const [editingEvent, setEditingEvent] = useState(null);
-  const [eventForm, setEventForm] = useState(emptyEvent);
 
   const handleAdminLogout = () => setShowConfirm(true);
 
@@ -95,7 +78,7 @@ const Admin = () => {
   };
 
   const startEditMovie = movie => {
-    setEditingMovie(movie.id);
+    setEditingMovie(movie._id || movie.id); // Use _id if present
     setMovieForm({
       ...movie,
       showtimes: Array.isArray(movie.showtimes) ? movie.showtimes.join(', ') : movie.showtimes,
@@ -109,11 +92,11 @@ const Admin = () => {
     });
   };
 
-  const saveMovie = e => {
+  // Add or update movie in MongoDB
+  const saveMovie = async e => {
     e.preventDefault();
     const movieData = {
       ...movieForm,
-      id: editingMovie ? editingMovie : Date.now(),
       year: Number(movieForm.year) || 2025,
       rating: Number(movieForm.rating) || '',
       price: Number(movieForm.price) || '',
@@ -123,13 +106,31 @@ const Admin = () => {
       })),
       showtimes: movieForm.showtimes.split(',').map(s => s.trim()).filter(Boolean)
     };
-    if (editingMovie) {
-      setMovies(movies.map(m => (m.id === editingMovie ? movieData : m)));
-    } else {
-      setMovies([...movies, movieData]);
+    try {
+      if (editingMovie) {
+        // Remove _id from payload to avoid immutable field error in MongoDB
+        const { _id, id, ...rest } = movieData;
+        const res = await fetch(`http://localhost:3001/api/movies/${editingMovie}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(rest)
+        });
+        if (!res.ok) throw new Error('Failed to update movie');
+      } else {
+        // Add new movie
+        const res = await fetch('http://localhost:3001/api/movies', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(movieData)
+        });
+        if (!res.ok) throw new Error('Failed to add movie');
+      }
+      setEditingMovie(null);
+      setMovieForm(emptyMovie);
+      fetchMovies();
+    } catch {
+      alert('Failed to save movie to database.');
     }
-    setEditingMovie(null);
-    setMovieForm(emptyMovie);
   };
 
   const deleteMovie = async id => {
@@ -144,60 +145,16 @@ const Admin = () => {
       });
       if (res.ok) {
         setMovies(movies.filter(m => (m._id || m.id) !== mongoId));
-        if (editingMovie === id) {
+        if (editingMovie === mongoId) {
           setEditingMovie(null);
           setMovieForm(emptyMovie);
         }
+        fetchMovies();
       } else {
-        // Optionally handle error
         alert('Failed to delete movie from database.');
       }
     } catch {
       alert('Failed to delete movie from database.');
-    }
-  };
-
-  // --- EVENT CRUD ---
-  const handleEventInput = e => {
-    const { name, value } = e.target;
-    setEventForm({ ...eventForm, [name]: value });
-  };
-
-  const startAddEvent = () => {
-    setEditingEvent(null);
-    setEventForm(emptyEvent);
-  };
-
-  const startEditEvent = event => {
-    setEditingEvent(event.id);
-    setEventForm({
-      ...event,
-      showtimes: Array.isArray(event.showtimes) ? event.showtimes.join(', ') : event.showtimes
-    });
-  };
-
-  const saveEvent = e => {
-    e.preventDefault();
-    const eventData = {
-      ...eventForm,
-      id: editingEvent ? editingEvent : Date.now(),
-      price: Number(eventForm.price) || '',
-      showtimes: eventForm.showtimes.split(',').map(s => s.trim()).filter(Boolean)
-    };
-    if (editingEvent) {
-      setEvents(events.map(ev => (ev.id === editingEvent ? eventData : ev)));
-    } else {
-      setEvents([...events, eventData]);
-    }
-    setEditingEvent(null);
-    setEventForm(emptyEvent);
-  };
-
-  const deleteEvent = id => {
-    setEvents(events.filter(e => e.id !== id));
-    if (editingEvent === id) {
-      setEditingEvent(null);
-      setEventForm(emptyEvent);
     }
   };
 
@@ -221,12 +178,6 @@ const Admin = () => {
             Movies
           </button>
           <button
-            className={section === 'events' ? 'active' : ''}
-            onClick={() => setSection('events')}
-          >
-            Events
-          </button>
-          <button
             className="admin-logout-btn"
             onClick={handleAdminLogout}
           >
@@ -239,7 +190,6 @@ const Admin = () => {
           <h1>
             {section === 'dashboard' && 'Admin Dashboard'}
             {section === 'movies' && 'Manage Movies'}
-            {section === 'events' && 'Manage Events'}
           </h1>
         </header>
         <div className="admin-content">
@@ -251,13 +201,9 @@ const Admin = () => {
                   <span className="admin-stat-value">{movies.length}</span>
                 </div>
                 <div className="admin-stat-card">
-                  <span className="admin-stat-label">Total Events</span>
-                  <span className="admin-stat-value">{events.length}</span>
-                </div>
-                <div className="admin-stat-card">
                   <span className="admin-stat-label">Potential Revenue</span>
                   <span className="admin-stat-value">
-                    ₹{movies.reduce((sum, m) => sum + (m.price || 0), 0) + events.reduce((sum, e) => sum + (e.price || 0), 0)}
+                    ₹{movies.reduce((sum, m) => sum + (m.price || 0), 0)}
                   </span>
                 </div>
               </div>
@@ -268,14 +214,6 @@ const Admin = () => {
                   <ul>
                     {movies.slice(0, 3).map(m => (
                       <li key={m.id}>{m.title} <span className="admin-glance-badge">₹{m.price}</span></li>
-                    ))}
-                  </ul>
-                </div>
-                <div className="admin-glance-block">
-                  <div className="admin-glance-title">Upcoming Events</div>
-                  <ul>
-                    {events.slice(0, 3).map(e => (
-                      <li key={e.id}>{e.title} <span className="admin-glance-badge">₹{e.price}</span></li>
                     ))}
                   </ul>
                 </div>
@@ -382,57 +320,7 @@ const Admin = () => {
                       </div>
                       <div style={{marginTop:8}}>
                         <button className="btn btn-secondary" style={{fontSize:'0.85rem',marginRight:8}} onClick={() => startEditMovie(movie)}>Edit</button>
-                        <button className="btn btn-primary" style={{fontSize:'0.85rem',background:'#e74c3c'}} onClick={() => deleteMovie(movie.id)}>Delete</button>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </>
-          )}
-          {section === 'events' && (
-            <>
-              <div className="admin-section-title" style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
-                <span>All Events</span>
-                <button className="btn btn-primary" onClick={startAddEvent} style={{fontSize:'0.95rem'}}>Add Event</button>
-              </div>
-              {(editingEvent !== null || eventForm.title) && (
-                <form className="admin-edit-form" onSubmit={saveEvent}>
-                  <div className="admin-form-row">
-                    <input name="title" value={eventForm.title} onChange={handleEventInput} placeholder="Title" required />
-                    <input name="date" value={eventForm.date} onChange={handleEventInput} placeholder="Date" />
-                    <input name="venue" value={eventForm.venue} onChange={handleEventInput} placeholder="Venue" />
-                    <input name="genre" value={eventForm.genre} onChange={handleEventInput} placeholder="Genre" />
-                  </div>
-                  <div className="admin-form-row">
-                    <input name="price" value={eventForm.price} onChange={handleEventInput} placeholder="Price" type="number" />
-                    <input name="poster" value={eventForm.poster} onChange={handleEventInput} placeholder="Poster URL" />
-                    <input name="showtimes" value={eventForm.showtimes} onChange={handleEventInput} placeholder="Showtimes (comma separated)" />
-                  </div>
-                  <div className="admin-form-row">
-                    <textarea name="description" value={eventForm.description} onChange={handleEventInput} placeholder="Description" rows={2} />
-                  </div>
-                  <div className="admin-form-row" style={{justifyContent:'flex-end'}}>
-                    <button className="btn btn-primary" type="submit" style={{marginRight:8}}>
-                      {editingEvent ? 'Update' : 'Add'}
-                    </button>
-                    <button className="btn btn-secondary" type="button" onClick={() => { setEditingEvent(null); setEventForm(emptyEvent); }}>
-                      Cancel
-                    </button>
-                  </div>
-                </form>
-              )}
-              <div className="admin-list-grid">
-                {events.map(event => (
-                  <div className="admin-list-card" key={event.id}>
-                    <img src={event.poster} alt={event.title} className="admin-list-img" />
-                    <div className="admin-list-info">
-                      <h3>{event.title}</h3>
-                      <p>{event.genre} | {event.date}</p>
-                      <span className="admin-badge">₹{event.price}</span>
-                      <div style={{marginTop:8}}>
-                        <button className="btn btn-secondary" style={{fontSize:'0.85rem',marginRight:8}} onClick={() => startEditEvent(event)}>Edit</button>
-                        <button className="btn btn-primary" style={{fontSize:'0.85rem',background:'#e74c3c'}} onClick={() => deleteEvent(event.id)}>Delete</button>
+                        <button className="btn btn-primary" style={{fontSize:'0.85rem',background:'#e74c3c'}} onClick={() => deleteMovie(movie._id || movie.id)}>Delete</button>
                       </div>
                     </div>
                   </div>

@@ -4,9 +4,7 @@ import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import Home from './pages/Home';
 import MovieListing from './pages/MovieListing';
-import EventListing from './pages/EventListing';
 import MovieDetail from './pages/MovieDetail';
-import EventDetail from './pages/EventDetail';
 import Booking from './pages/Booking';
 import Login from './pages/Login';
 import Logout from './pages/Logout';
@@ -94,26 +92,10 @@ function App() {
             }
           />
           <Route
-            path="/events"
-            element={
-              <RequireAuth>
-                <EventListing />
-              </RequireAuth>
-            }
-          />
-          <Route
             path="/movie/:id"
             element={
               <RequireAuth>
                 <MovieDetail />
-              </RequireAuth>
-            }
-          />
-          <Route
-            path="/event/:id"
-            element={
-              <RequireAuth>
-                <EventDetail />
               </RequireAuth>
             }
           />

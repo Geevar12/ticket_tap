@@ -135,6 +135,42 @@ app.patch('/api/movies/:id/book-seats', async (req, res) => {
     }
 });
 
+// Add new movie
+app.post('/api/movies', async (req, res) => {
+    const movie = req.body;
+    const client = new MongoClient(uri);
+    try {
+        await client.connect();
+        const db = client.db('tickettap');
+        const result = await db.collection('movies').insertOne(movie);
+        res.status(201).json({ message: 'Movie added', id: result.insertedId });
+    } catch (err) {
+        res.status(500).json({ error: 'Failed to add movie' });
+    } finally {
+        await client.close();
+    }
+});
+
+// Update movie
+app.put('/api/movies/:id', async (req, res) => {
+    const { id } = req.params;
+    const movie = req.body;
+    const client = new MongoClient(uri);
+    try {
+        await client.connect();
+        const db = client.db('tickettap');
+        await db.collection('movies').updateOne(
+            { _id: new ObjectId(id) },
+            { $set: movie }
+        );
+        res.status(200).json({ message: 'Movie updated' });
+    } catch (err) {
+        res.status(500).json({ error: 'Failed to update movie' });
+    } finally {
+        await client.close();
+    }
+});
+
 app.get('/api/movies', getMovies);
 
 const PORT = process.env.PORT || 3001;
