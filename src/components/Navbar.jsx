@@ -22,6 +22,9 @@ const Navbar = () => {
           <Link to="/movies" className="nav-link" onClick={() => setIsMenuOpen(false)}>
             Movies
           </Link>
+          <Link to="/profile" className="nav-link" onClick={() => setIsMenuOpen(false)}>
+            Profile
+          </Link>
           <Link to="/logout" className="nav-link" onClick={() => setIsMenuOpen(false)}>
             Logout
           </Link>

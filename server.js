@@ -171,6 +171,78 @@ app.put('/api/movies/:id', async (req, res) => {
     }
 });
 
+// Store a booking
+app.post('/api/bookings', async (req, res) => {
+    const booking = req.body;
+    const client = new MongoClient(uri);
+    try {
+        await client.connect();
+        const db = client.db('tickettap');
+        await db.collection('bookings').insertOne(booking);
+        res.status(201).json({ message: 'Booking saved' });
+    } catch (err) {
+        res.status(500).json({ error: 'Failed to save booking' });
+    } finally {
+        await client.close();
+    }
+});
+
+// Get all bookings
+app.get('/api/bookings', async (req, res) => {
+    const client = new MongoClient(uri);
+    try {
+        await client.connect();
+        const db = client.db('tickettap');
+        const bookings = await db.collection('bookings').find({}).toArray();
+        res.json(bookings);
+    } catch (err) {
+        res.status(500).json({ error: 'Failed to fetch bookings' });
+    } finally {
+        await client.close();
+    }
+});
+
+// Cancel a booking and update seats in movies collection
+app.post('/api/bookings/cancel', async (req, res) => {
+    const { bookingId, movieId, seats } = req.body;
+    if (!bookingId || !movieId || !Array.isArray(seats) || seats.length === 0) {
+        return res.status(400).json({ error: 'Invalid cancellation request' });
+    }
+    const client = new MongoClient(uri);
+    try {
+        await client.connect();
+        const db = client.db('tickettap');
+        // 1. Mark booking as cancelled
+        await db.collection('bookings').updateOne(
+            { _id: new ObjectId(bookingId) },
+            { $set: { status: 'cancelled' } }
+        );
+        // 2. Move seats from bookedSeats to availableSeats in movies collection
+        const movie = await db.collection('movies').findOne({ _id: new ObjectId(movieId) });
+        if (!movie) {
+            return res.status(404).json({ error: 'Movie not found' });
+        }
+        const bookedSeats = Array.isArray(movie.bookedSeats) ? movie.bookedSeats : [];
+        const availableSeats = Array.isArray(movie.availableSeats) ? movie.availableSeats : [];
+        const newBookedSeats = bookedSeats.filter(seat => !seats.includes(seat));
+        const newAvailableSeats = [...availableSeats, ...seats.filter(seat => !availableSeats.includes(seat))];
+        await db.collection('movies').updateOne(
+            { _id: new ObjectId(movieId) },
+            {
+                $set: {
+                    bookedSeats: newBookedSeats,
+                    availableSeats: newAvailableSeats
+                }
+            }
+        );
+        res.status(200).json({ message: 'Booking cancelled and seats updated' });
+    } catch (err) {
+        res.status(500).json({ error: 'Failed to cancel booking' });
+    } finally {
+        await client.close();
+    }
+});
+
 app.get('/api/movies', getMovies);
 
 const PORT = process.env.PORT || 3001;

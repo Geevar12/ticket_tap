@@ -73,7 +73,6 @@ const Payment = () => {
           disabled={processing}
           onClick={async () => {
             setProcessing(true);
-            // Use _id if available, else fallback to id
             const movieId = booking._id || booking.id;
             try {
               await fetch(`http://localhost:3001/api/movies/${movieId}/book-seats`, {
@@ -81,6 +80,35 @@ const Payment = () => {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ seats: booking.selectedSeats })
               });
+              // Save booking to backend for admin dashboard and user profile
+              const user = localStorage.getItem('user') || 'default';
+              await fetch('http://localhost:3001/api/bookings', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  user,
+                  movieId,
+                  movieName: booking.movieName,
+                  theatreName: booking.theatreName,
+                  showtime: booking.showtime,
+                  seatType: booking.seatType,
+                  seatTypePrice: booking.seatTypePrice,
+                  selectedSeats: booking.selectedSeats,
+                  totalPrice: booking.totalPrice,
+                  selectedDate: booking.selectedDate,
+                  bookingTime: new Date().toISOString(),
+                  status: 'booked'
+                })
+              });
+              // Save booking to localStorage for profile (optional, for fast UI)
+              const bookings = JSON.parse(localStorage.getItem(`bookings_${user}`) || '[]');
+              bookings.push({
+                ...booking,
+                date: booking.selectedDate,
+                bookingTime: new Date().toISOString(),
+                status: 'booked'
+              });
+              localStorage.setItem(`bookings_${user}`, JSON.stringify(bookings));
             } catch (e) {
               // Optionally handle error
             }

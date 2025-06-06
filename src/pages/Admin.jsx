@@ -24,17 +24,25 @@ const Admin = () => {
   const [movies, setMovies] = useState([]);
   const [editingMovie, setEditingMovie] = useState(null);
   const [movieForm, setMovieForm] = useState(emptyMovie);
+  const [bookings, setBookings] = useState([]);
 
-  // Fetch movies from backend on mount and after changes
+  // Fetch movies and bookings from backend on mount and after changes
   const fetchMovies = () => {
     fetch('http://localhost:3001/api/movies')
       .then(res => res.json())
       .then(data => setMovies(data))
       .catch(() => setMovies([]));
   };
+  const fetchBookings = () => {
+    fetch('http://localhost:3001/api/bookings')
+      .then(res => res.json())
+      .then(data => setBookings(data))
+      .catch(() => setBookings([]));
+  };
 
   useEffect(() => {
     fetchMovies();
+    fetchBookings();
   }, []);
 
   const handleAdminLogout = () => setShowConfirm(true);
@@ -201,19 +209,25 @@ const Admin = () => {
                   <span className="admin-stat-value">{movies.length}</span>
                 </div>
                 <div className="admin-stat-card">
+                  <span className="admin-stat-label">Total Bookings</span>
+                  <span className="admin-stat-value">{bookings.length}</span>
+                </div>
+                <div className="admin-stat-card">
                   <span className="admin-stat-label">Potential Revenue</span>
                   <span className="admin-stat-value">
                     ₹{movies.reduce((sum, m) => sum + (m.price || 0), 0)}
                   </span>
                 </div>
               </div>
-              <div className="admin-section-title">Quick Glance</div>
+              <div className="admin-section-title">Recent Bookings</div>
               <div className="admin-glance-row">
-                <div className="admin-glance-block">
-                  <div className="admin-glance-title">Top Movies</div>
+                <div className="admin-glance-block" style={{flex: 1}}>
+                  <div className="admin-glance-title">Latest Bookings</div>
                   <ul>
-                    {movies.slice(0, 3).map(m => (
-                      <li key={m.id}>{m.title} <span className="admin-glance-badge">₹{m.price}</span></li>
+                    {bookings.slice(-5).reverse().map((b, i) => (
+                      <li key={i}>
+                        <span style={{fontWeight:600}}>{b.movieName}</span> - {b.selectedDate} - {b.selectedSeats.join(', ')} - ₹{b.totalPrice}
+                      </li>
                     ))}
                   </ul>
                 </div>

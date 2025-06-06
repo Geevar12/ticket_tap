@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-const Theatre = ({ theatreName, showtimes, seatPrices, price, movieId, movieName, bookedSeats: bookedSeatsFromDb }) => {
+const Theatre = ({ theatreName, showtimes, seatPrices, price, movieId, movieName, bookedSeats: bookedSeatsFromDb, selectedDate }) => {
   const [selectedShowtime, setSelectedShowtime] = useState(showtimes[0] || '');
   const [selectedSeats, setSelectedSeats] = useState([]);
   const [selectedSeatType, setSelectedSeatType] = useState(seatPrices && seatPrices.length > 0 ? seatPrices[0].type : '');
@@ -90,8 +90,9 @@ const Theatre = ({ theatreName, showtimes, seatPrices, price, movieId, movieName
         selectedSeats,
         totalPrice,
         movieName,
-        movieId, // this is usually id or _id
-        _id: movieId // ensure _id is passed for MongoDB
+        movieId,
+        _id: movieId,
+        selectedDate // Pass the selected date
       }
     });
   };

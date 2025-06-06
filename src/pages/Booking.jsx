@@ -1,10 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useLocation } from 'react-router-dom';
 import Theatre from '../Theatre';
 import './Booking.css';
 
 const Booking = () => {
   const { type, id } = useParams();
+  const location = useLocation();
+  const selectedDate = location.state?.selectedDate || '';
   const [selectedSeats, setSelectedSeats] = useState([]);
   const [item, setItem] = useState(null);
   const [selectedSeatType, setSelectedSeatType] = useState('');
@@ -107,6 +109,9 @@ const Booking = () => {
             <div className="item-details">
               <h1>{item.title}</h1>
               <p>{type === 'movie' ? item.genre : `${item.date} • ${item.venue}`}</p>
+              {selectedDate && (
+                <p><strong>Date:</strong> {selectedDate}</p>
+              )}
             </div>
           </div>
         </div>
@@ -122,6 +127,7 @@ const Booking = () => {
             availableSeats={item.availableSeats}
             _id={item._id}
             id={item.id}
+            selectedDate={selectedDate}
           />
         </div>
       </div>
