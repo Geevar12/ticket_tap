@@ -50,7 +50,7 @@ const Admin = () => {
   const confirmLogout = () => {
     localStorage.removeItem('loggedIn');
     localStorage.removeItem('isAdmin');
-    navigate('/login', { replace: true });
+    window.location.replace('/login');
   };
 
   // --- MOVIE CRUD ---

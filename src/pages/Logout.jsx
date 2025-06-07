@@ -7,11 +7,9 @@ const Logout = () => {
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    localStorage.removeItem('loggedIn'); // Actually clear login state
-    setConfirmed(true);
-    setTimeout(() => {
-      navigate('/login', { replace: true });
-    }, 1200);
+    localStorage.removeItem('loggedIn');
+    localStorage.removeItem('isAdmin');
+    navigate('/login', { replace: true });
   };
 
   if (confirmed) {
