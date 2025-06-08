@@ -96,7 +96,7 @@ const Login = ({ onLogin }) => {
     <div className="login-page">
       <div className="login-card">
         <h2 className="login-title">
-          {isSignup ? 'Create your TicketTap Account' : 'Sign in to TicketTap'}
+          {isSignup ? 'Create your Nova Cinemas Account' : 'Sign in to Nova Cinemas'}
         </h2>
         {!isSignup ? (
           <form onSubmit={handleLogin}>
@@ -202,7 +202,7 @@ const Login = ({ onLogin }) => {
         <div className="login-footer">
           {!isSignup ? (
             <>
-              <span>New to TicketTap?</span>
+              <span>New to Nova Cinemas?</span>
               <button
                 className="login-link"
                 type="button"
